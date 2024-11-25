@@ -1,4 +1,11 @@
-import { Text, View, Image, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import {
+  Text,
+  View,
+  Image,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
 import { useState, useEffect } from "react";
 import { Link } from "expo-router";
 
@@ -13,6 +20,8 @@ interface Team {
 
 export default function Index() {
   const [teams, setTeams] = useState<Team[]>([]);
+  const [teamsSortedByPoints, setTeamsSortedByPoints] = useState<Team[]>([]);
+  const [orderByPoints, setOrderByPoints] = useState(false);
 
   const fetchTeams = async () => {
     try {
@@ -20,6 +29,9 @@ export default function Index() {
       const data = await response.json();
       setTeams(data);
       console.log(teams);
+      const sortedTeams = teams.sort((a, b) => b.points - a.points);
+      setTeamsSortedByPoints(sortedTeams);
+      console.log(teamsSortedByPoints);
     } catch (error) {
       console.error("Error fetching teams:", error);
     }
@@ -27,7 +39,7 @@ export default function Index() {
 
   useEffect(() => {
     fetchTeams();
-  }, []);
+  }, [orderByPoints]);
 
   return (
     <ScrollView
@@ -35,16 +47,27 @@ export default function Index() {
         flex: 1,
       }}
     >
-      <TouchableOpacity style={styles.button}>
-        <Link
-          href={{
-            pathname: "/addTeam",
-          }}
-        >
+      <Link
+        href={{
+          pathname: "/addTeam",
+        }}
+        
+      >
+        <TouchableOpacity style={styles.button}>
           <Text style={styles.buttonText}>Agregar equipo</Text>
-        </Link>
+        </TouchableOpacity>
+      </Link>
+
+      <TouchableOpacity
+        onPress={() => setOrderByPoints(!orderByPoints)}
+        style={styles.button}
+      >
+        <Text style={styles.buttonText}>
+          Ordenar por: {orderByPoints ? `orden original` : `puntos`}
+        </Text>
       </TouchableOpacity>
-      {teams &&
+      {!orderByPoints &&
+        teams &&
         teams.map((team) => {
           return (
             <View
@@ -61,7 +84,31 @@ export default function Index() {
                 style={styles.container}
               >
                 <Text style={styles.headerText}>{team.name}</Text>
-                <br />
+                {"\n"}
+                <Text>{team.description}</Text>
+              </Link>
+            </View>
+          );
+        })}
+      {orderByPoints &&
+        teamsSortedByPoints &&
+        teamsSortedByPoints.map((team) => {
+          return (
+            <View
+              key={team.id}
+              style={{
+                backgroundColor: "white",
+                borderRadius: 10,
+                width: "90%",
+                margin: 16,
+              }}
+            >
+              <Link
+                href={{ pathname: "/details", params: { id: team.id } }}
+                style={styles.container}
+              >
+                <Text style={styles.headerText}>{team.name}</Text>
+                {"\n"}
                 <Text>{team.description}</Text>
               </Link>
             </View>

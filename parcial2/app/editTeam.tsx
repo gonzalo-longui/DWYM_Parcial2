@@ -17,6 +17,7 @@ const EditTeam = () => {
   const [points, setPoints] = useState("");
   const [logo, setLogo] = useState("");
   const navigation = useNavigation();
+  const [numberAlert, setNumberAlert] = useState(false);
 
   const fetchTeamData = async () => {
     try {
@@ -39,11 +40,12 @@ const EditTeam = () => {
   }, []);
 
   const jsonify = () => {
+    console.log(goals);
     return {
       name,
       description,
-      goals,
-      points,
+      goals: parseInt(goals),
+      points: parseInt(points),
       logo,
     };
   };
@@ -59,17 +61,26 @@ const EditTeam = () => {
   const handleSubmit = async () => {
     const json = jsonify();
     console.log(json);
-    const response = await fetch(`http://161.35.143.238:8000/glongui/${params.id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(json),
-    });
-    console.log(response);
-    resetState();
-    navigation.navigate("index");
+    if (!isNaN(json.goals) && !isNaN(json.points)) {
+      const response = await fetch(`http://161.35.143.238:8000/glongui/${params.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(json),
+      });
+      console.log(response);
+      resetState();
+      navigation.navigate("index");
+    } else {
+      console.log("Error: campos 'Goles' y 'Puntos' deben ser números");
+      setNumberAlert(true);
+    }
   };
+
+  const handleCancel = async () => {
+    navigation.navigate("index");
+  }
 
   return (
     <ScrollView>
@@ -97,8 +108,12 @@ const EditTeam = () => {
         <Text>Logo:</Text>
         <TextInput value={logo} onChangeText={setLogo} placeholder="" />
       </View>
+      <Text style={numberAlert ? styles.alert : {display: 'none'}}> ⚠︎ Los campos Goles y Puntos deben ser números</Text>
       <TouchableOpacity style={styles.button} onPress={() => handleSubmit()}>
         <Text>Editar</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={() => handleCancel()}>
+        <Text>Cancelar</Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -111,8 +126,13 @@ const styles = StyleSheet.create({
     padding: 10,
     height: 72,
   },
+  alert: {
+    color: '#f00000',
+    fontSize: 18,
+  },
   button: {
-    width: "100%",
+    width: "90%",
+    marginLeft: "5%",
     height: 50,
     backgroundColor: "#f4511e",
     borderRadius: 10,

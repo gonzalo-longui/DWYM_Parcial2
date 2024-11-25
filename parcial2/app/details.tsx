@@ -68,11 +68,13 @@ const Details = () => {
         </View>
       )}
 
-      <Link href={{ pathname: "/editTeam", params: { id: team.id } }} style={styles.button}>
-          <Text>Editar</Text>
+      <Link href={{ pathname: "/editTeam", params: { id: team.id } }} style={{width: '100%', marginLeft: '10%'}}>
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>Editar</Text>
+        </TouchableOpacity>
       </Link>
       <TouchableOpacity style={styles.button} onPress={handleDelete}>
-        <Text>Eliminar</Text>
+        <Text style={styles.buttonText}>Eliminar</Text>
       </TouchableOpacity>
     </View>
   );
@@ -84,10 +86,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  buttonText: {
+    color: "#fff",
+    fontSize: 20,
+  },
   button: {
     width: "90%",
     height: 50,
     marginTop: 0,
+    marginBottom: 5,
     backgroundColor: "#f4511e",
     borderRadius: 10,
     justifyContent: "center",
